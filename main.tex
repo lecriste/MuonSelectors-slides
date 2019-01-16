@@ -17,15 +17,22 @@
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 
-%\usepackage{pgffor}
-\usepackage{tikz,etoolbox}
+\usepackage{pgffor} % \foreach
+\usepackage{xstring} % \IfStrEq
+\usepackage{ifthen} % \whiledo
 
-\title[Muon selectors]{Study of muon selectors performance for low $p_T$ muons}
+\usepackage{extarrows} % \xLongrightarrow
+
+\graphicspath{{pics/ROCs_10_2_X/}}
+
+\title[Muon selectors]{Study of muon selectors performance for low \texorpdfstring{$p_T$}{pT} muons}
 \author{Leonardo Cristella}
 \institute{University \& INFN of Bari}
 \date{Date of Presentation}
 
 \begin{document}
+
+%\tracingall
 
 \begin{frame}
   \titlepage
@@ -36,33 +43,66 @@
 %  \tableofcontents
 %\end{frame}
 
-\section{Introduction}
-
-\begin{frame}{Introduction}
-
-\begin{itemize}
-  \item Your introduction goes here!
-  \item Use \texttt{itemize} to organize your main points.
-\end{itemize}
-
-\vskip 1cm
-
-\begin{block}{Examples}
-Some examples of commonly used commands and features are included, to help you get started.
-\end{block}
-
-\end{frame}
-
-\def\analyses{BPH-15-005, BPH-18-002, BPH-16-004}
-\def\titles{{%
+\def \analyses {BPH-15-005, BPH-18-002, BPH-16-004}
+\def \titles {{%
 "Quarkonium cross sections with early data at c.o.m. energy of 13 TeV",%
 "Search for resonances decaying to $\Upsilon(1S)$ + two leptons",%
 "Measurement of $B_s \to \mu \mu$ effective lifetime and search for $B^0 \to \mu \mu$"
 }}
+\def \preSels {{%
+"$p_T(\mu) > 3.5 GeV$, $|\eta(\mu)| < 2.4$",%
+"$p_T(\mu) > 2.5 GeV$, $|\eta(\mu)| < 1.4$",%
+"$p_T(\mu) > 4 GeV$,   $|\eta(\mu)| < 1.4$"
+}}
 
-\def\samples{$t\bar{t}$, $QCD + Z \to \mu\mu$, $J/\psi \to \mu \mu$}
+\begin{frame}{Benchmark analyses}
+\begin{itemize}
+    \foreach \analysis[count=\iAn from 0] in \analyses {
+        \item
+        \textbf{\analysis} \\
+        \pgfmathparse{\titles[\iAn]}
+        \pgfmathresult \\
+        \pgfmathparse{\preSels[\iAn]}
+        \pgfmathresult
+        \bigskip
+    }
+\end{itemize}
+\end{frame}
 
-\def\matchings{MatchedPrimaryMuon, MatchedMuonFromHeavyFlavour, MatchedMuonFromB, MatchedMuonFromBtoC, MatchedMuonFromC}
+\def \samples {\texorpdfstring{$t\bar{t}$}{ttbar}, \texorpdfstring{$J/\psi \to \mu \mu$}{J/psi -> mumu}, $QCD + Z \to \mu\mu$}
+\def \samplesLit {{"ttbar", "JPsiToMuMu", "qcd_zmm"}}
+
+\begin{frame}{Input samples}
+\begin{itemize}
+    \foreach \sample in \samples {
+        \item
+        \textbf{\sample}
+        \bigskip
+    }
+\end{itemize}        
+\end{frame}
+
+%\begin{block}{Examples}
+%Some examples of commonly used commands and features are included, to help you get started.
+%\end{block}
+
+\def \matchings {MatchedPrimaryMuon, MatchedMuonFromHeavyFlavour, MatchedMuonFromB, MatchedMuonFromBtoC, MatchedMuonFromC}
+
+\begin{frame}{Signal and background definition}
+Among muons passing a given analysis pre-selection cuts
+\begin{itemize}
+    \item several signal muon definitions studied:
+    \begin{itemize}
+    \foreach \matching in \matchings {
+        \item
+        \texttt{\matching}
+        %\bigskip
+    }
+    \end{itemize}        
+    \item Background muon ≡ not signal muon
+\end{itemize}        
+\end{frame}
+
 
 \foreach \analysis[count=\iAn from 0] in \analyses {
     
@@ -74,31 +114,39 @@ Some examples of commonly used commands and features are included, to help you g
     \textbf{\analysis} \\
     \pgfmathresult
     \end{frame}
-    
-    \foreach \sample in \samples {
-        \subsection{\sample}
 
-        \foreach \matching in \matchings {
-        
-            \begin{frame}{\texttt{\matching}}
-            \begin{columns}
-                \begin{column}{0.5\textwidth}
-                \includegraphics[width=0.5\textwidth]{example-image-\x}
-                \end{column}
-
-                \begin{column}{0.5\textwidth}
-                \includegraphics[width=0.5\textwidth]{image1.jpg}
-                \end{column}
-            \end{columns}
-            \end{frame}
+    \foreach \sample[count=\iSamp from 0] in \samples {
+        \pgfmathparse{\samplesLit[\iSamp]}
+        \IfStrEq{\pgfmathresult}{qcd_zmm}{}{
+            \subsection{\sample}
             
-        } % \foreach \matching
+            \foreach \matching in \matchings {
+                %\whiledo{\equal{\pgfmathresult}{JPsiToMuMu}}{% \and %\equal{\matching}{MatchedMuonFromB}}{ % compilation timeout
+                \ifthenelse{\NOT \( \equal{\pgfmathresult}{JPsiToMuMu} \AND \(\equal{\matching}{MatchedPrimaryMuon} \OR \equal{\matching}{MatchedMuonFromHeavyFlavour} \OR \equal{\matching}{MatchedMuonFromC}\) \)}{
+                    \def \plot {\analysis /\pgfmathresult_\matching}
+                
+                    \begin{frame}{\texttt{\matching}}
+                    \centering
+                    $\xLongrightarrow{\text{log scale}}$
+                    
+                    \begin{columns}
+                        \begin{column}{0.5\textwidth}
+                        \includegraphics[width=\textwidth]{\plot.png}
+                        \end{column}
+        
+                        \begin{column}{0.5\textwidth}
+                        \includegraphics[width=\textwidth]{\plot-log.png}
+                        \end{column}
+                    \end{columns}
+                    \end{frame}
+                    %\breakforeach
+                }{}
+            } % \foreach \matching
+        } % \IfStrEq{\pgfmathresult}{qcd_zmm}{}{
     } % \foreach \sample
 } % \foreach \analysis
 
-\section{Some \LaTeX{} Examples}
 
-\subsection{Tables and Figures}
 
 \begin{frame}{Tables and Figures}
 
