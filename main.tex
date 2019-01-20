@@ -16,7 +16,7 @@
 
 \expandafter \def \expandafter \insertshorttitle \expandafter{%
   \insertshorttitle \hfill%
-  \insertframenumber \,/\, \inserttotalframenumber
+  \insertframenumber \,/ \inserttotalframenumber
   }
 
 \usepackage[english]{babel}
@@ -37,10 +37,11 @@
 
 \graphicspath{{pics/ROCs_10_2_X/}}
 
-\title[Muon selectors]{Study of muon selectors performance for low \texorpdfstring{$p_T$}{pT} muons}
+\title[Muon selectors]{Study of muon selectors performance \\
+for low \texorpdfstring{$p_T$}{pT} muons}
 \author{Leonardo Cristella}
 \institute{University \& INFN of Bari}
-\date{Date of Presentation}
+\date{21 January 2018}
 
 \begin{document}
 
@@ -63,10 +64,11 @@
 "Measurement of $B_s \to \mu^+ \mu^-$ effective lifetime and search for $B^0 \to \mu^+ \mu^-$",%
 "Search for $\tau \to 3\mu$ decay (W channel)"
 }}
+\def \BMuMuBkg {\Lambda_b/B_{(s)} \to h^+ h^-}
 \def \bkgs {{%
 "combinatorial only",%
-"$\Upsilon(1S) \to \mu \mu$ as close to the signal mass region considered: [13, 28]",% Events where one of the alternative pair of OS muons is compatible with a J/psi within 2 sigmas are also vetoed.
-"$\Lambda_b/B_{(s)} \to h^+ h^-$",% /BdToPiMuNu, /BsToKMuMu, /LambdaBToPMuNu 
+"$\Upsilon(1S) \to \mu \mu$ as close to the signal mass region considered ([13, 28] GeV)",% Events where one of the alternative pair of OS muons is compatible with a J/psi within 2 sigmas are also vetoed.
+"$\BMuMuBkg$",% /BdToPiMuNu, /BsToKMuMu, /LambdaBToPMuNu 
 "QCD (processes are estimated purely from data sidebands and no MC sample is considered for the background modeling)"% if any of the muons is coming from a dimuon resonance the triplet is discarded.
 }}
 \def \preSels {{%
@@ -107,9 +109,10 @@
 }
 
 % Keep the following four lists ordered
-\def \samples {\texorpdfstring{$t\bar{t}$}{ttbar}, \texorpdfstring{$J/\psi \to \mu \mu$}{J/psi -> mumu}, $QCD \; + \; Z \to \mu\mu$}
+\def \JpsiMuMu {J/\psi \to \mu \mu}
+\def \samples {\texorpdfstring{$t\bar{t}$}{ttbar}, \texorpdfstring{$\JpsiMuMu$}{J/psi -> mumu}, $QCD \; + \; Z \to \mu\mu$}
 \def \samplesString {{"ttbar", "JPsiToMuMu", "qcd_zmm"}}
-\def \samplesComment {{"not representative", "OK", "poor statistics"}}
+\def \samplesComment {{"not representative of any analysis", "OK for most analyses", "poor statistics after preselection"}}
 \def \samplesLink {{%
 "/RelValTTbar\_13/CMSSW\_10\_2\_3-PU25ns\_102X\_upgrade2018\_realistic\_v12-v1/MINIAODSIM",%
 "/JpsiToMuMu\_JpsiPt8\_TuneCP5\_13TeV-pythia8/RunIIAutumn18MiniAOD-PUAvg50ForMUOVal\_102X\_upgrade2018\_realistic\_v15-v1/MINIAODSIM",%
@@ -221,21 +224,32 @@ Among muons passing a given analysis pre-selection cuts
 } % \foreach \analysis
 
 
-
-\begin{frame}{Tables and Figures}
-
+\begin{frame}{Summary}
 \begin{itemize}
-\item Use \texttt{tabular} for basic tables --- see Table~\ref{tab:widgets}, for example.
-\item You can upload a figure (JPEG, PNG or PDF) using the files menu. 
-\item To include it in your document, use the \texttt{includegraphics} command (see the comment below in the source code).
+    \item
+    For any pre-selection applied on the $\JpsiMuMu$ sample:
+    \begin{itemize}
+        \item The \emph{SoftMVA} performs slightly better than any other selector for \texttt{MatchedMuonFromB} with respect to \texttt{MatchedMuonFromBtoC}
+
+        \item The \emph{Soft} and \emph{Loose} cut based ids have the highest signal/background efficiency 
+    \end{itemize}
+    
+    \item
+    Need to include specific samples for $\BMuMuBkg$ background     
 \end{itemize}
 
-% Commands to include a figure:
-%\begin{figure}
-%\includegraphics[width=\textwidth]{your-figure's-file-name}
-%\caption{\label{fig:your-figure}Caption goes here.}
-%\end{figure}
+\bigskip
 
+All plots in \texttt{png}, \texttt{pdf} and \texttt{ROOT} format available at\\
+\textit{\underline{http://lecriste.web.cern.ch/lecriste/MuonSelectors/ROCs\_10\_2\_X/}}
+
+\medskip
+
+Code:
+\textit{\underline{https://github.com/lecriste/muonSelectors/}}    
+\end{frame}
+
+\begin{comment}
 \begin{table}
 \centering
 \begin{tabular}{l|r}
@@ -245,18 +259,6 @@ Gadgets & 13
 \end{tabular}
 \caption{\label{tab:widgets}An example table.}
 \end{table}
-
-\end{frame}
-
-%\subsection{Mathematics}
-
-\begin{frame}{Readable Mathematics}
-
-Let $X_1, X_2, \ldots, X_n$ be a sequence of independent and identically distributed random variables with $\text{E}[X_i] = \mu$ and $\text{Var}[X_i] = \sigma^2 < \infty$, and let
-$$S_n = \frac{X_1 + X_2 + \cdots + X_n}{n}
-      = \frac{1}{n}\sum_{i}^{n} X_i$$
-denote their mean. Then as $n$ approaches infinity, the random variables $\sqrt{n}(S_n - \mu)$ converge in distribution to a normal $\mathcal{N}(0, \sigma^2)$.
-
-\end{frame}
+\end{comment}
 
 \end{document}
