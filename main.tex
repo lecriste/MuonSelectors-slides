@@ -14,14 +14,26 @@
   \setbeamertemplate{caption}[numbered]
 } 
 
+\expandafter \def \expandafter \insertshorttitle \expandafter{%
+  \insertshorttitle \hfill%
+  \insertframenumber \,/\, \inserttotalframenumber
+  }
+
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 
+\usepackage{comment}
 \usepackage{pgffor} % \foreach
 \usepackage{xstring} % \IfStrEq
-\usepackage{ifthen} % \whiledo
+\usepackage{ifthen} % \ifthenelse
 
 \usepackage{extarrows} % \xLongrightarrow
+
+\usepackage[nomessages]{fp} % \FPeval
+
+% for a proper underscore
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
 
 \graphicspath{{pics/ROCs_10_2_X/}}
 
@@ -43,41 +55,85 @@
 %  \tableofcontents
 %\end{frame}
 
-\def \analyses {BPH-15-005, BPH-18-002, BPH-16-004}
+% Keep the following three lists ordered
+\def \analyses {BPH-15-005, BPH-18-002, BPH-16-004, BPH-17-003}
 \def \titles {{%
 "Quarkonium cross sections with early data at c.o.m. energy of 13 TeV",%
 "Search for resonances decaying to $\Upsilon(1S)$ + two leptons",%
-"Measurement of $B_s \to \mu \mu$ effective lifetime and search for $B^0 \to \mu \mu$"
+"Measurement of $B_s \to \mu^+ \mu^-$ effective lifetime and search for $B^0 \to \mu^+ \mu^-$",%
+"Search for $\tau \to 3\mu$ decay (W channel)"
+}}
+\def \bkgs {{%
+"combinatorial only",%
+"$\Upsilon(1S) \to \mu \mu$ as close to the signal mass region considered: [13, 28]",% Events where one of the alternative pair of OS muons is compatible with a J/psi within 2 sigmas are also vetoed.
+"$\Lambda_b/B_{(s)} \to h^+ h^-$",% /BdToPiMuNu, /BsToKMuMu, /LambdaBToPMuNu 
+"QCD (processes are estimated purely from data sidebands and no MC sample is considered for the background modeling)"% if any of the muons is coming from a dimuon resonance the triplet is discarded.
 }}
 \def \preSels {{%
-"$p_T(\mu) > 3.5 GeV$, $|\eta(\mu)| < 2.4$",%
-"$p_T(\mu) > 2.5 GeV$, $|\eta(\mu)| < 1.4$",%
-"$p_T(\mu) > 4 GeV$,   $|\eta(\mu)| < 1.4$"
+"$p_T(\mu) > 3.5\,GeV$, $|\eta(\mu)| < 2.4$",%
+"$p_T(\mu) > 2.5\,GeV$, $|\eta(\mu)| < 1.4$",%
+"$p_T(\mu) > 4\,GeV$,   $|\eta(\mu)| < 1.4$",%
+"$p_T(\mu) > 1\,GeV$,   $|\eta(\mu)| < 2.4$"
 }}
 
-\begin{frame}{Benchmark analyses}
-\begin{itemize}
+\newcommand{\printAnalysis}[2] {
+    \item
+    \textbf{#1}:
+    \pgfmathparse{\titles[#2]}
+    \pgfmathresult
+    \begin{itemize}
+        \item
+        \pgfmathparse{\bkgs[#2]}
+        Main background: \pgfmathresult
+        
+        \item
+        \pgfmathparse{\preSels[#2]}
+        Muons preselection: \pgfmathresult
+    \end{itemize}
+}
+
+\foreach \x in {0, 2} {
+    \FPeval{\xpp}{clip(\x + 1)}%
+    \begin{frame}{Benchmark analyses}
     \foreach \analysis[count=\iAn from 0] in \analyses {
-        \item
-        \textbf{\analysis} \\
-        \pgfmathparse{\titles[\iAn]}
-        \pgfmathresult \\
-        \pgfmathparse{\preSels[\iAn]}
-        \pgfmathresult
-        \bigskip
+        \ifthenelse{\iAn = \x \OR \iAn = \xpp}{
+            \begin{itemize}
+            \printAnalysis \analysis \iAn
+            \bigskip
+            \end{itemize}
+        }{}
     }
-\end{itemize}
-\end{frame}
+    \end{frame}
+}
 
-\def \samples {\texorpdfstring{$t\bar{t}$}{ttbar}, \texorpdfstring{$J/\psi \to \mu \mu$}{J/psi -> mumu}, $QCD + Z \to \mu\mu$}
-\def \samplesLit {{"ttbar", "JPsiToMuMu", "qcd_zmm"}}
+% Keep the following four lists ordered
+\def \samples {\texorpdfstring{$t\bar{t}$}{ttbar}, \texorpdfstring{$J/\psi \to \mu \mu$}{J/psi -> mumu}, $QCD \; + \; Z \to \mu\mu$}
+\def \samplesString {{"ttbar", "JPsiToMuMu", "qcd_zmm"}}
+\def \samplesComment {{"not representative", "OK", "poor statistics"}}
+\def \samplesLink {{%
+"/RelValTTbar\_13/CMSSW\_10\_2\_3-PU25ns\_102X\_upgrade2018\_realistic\_v12-v1/MINIAODSIM",%
+"/JpsiToMuMu\_JpsiPt8\_TuneCP5\_13TeV-pythia8/RunIIAutumn18MiniAOD-PUAvg50ForMUOVal\_102X\_upgrade2018\_realistic\_v15-v1/MINIAODSIM",%
+"/RelValQCD\_FlatPt\_15\_3000HS\_13/CMSSW\_10\_2\_3-PU25ns\_102X\_upgrade2018\_realistic\_v12-v1/MINIAODSIM + /RelValZMM\_13/CMSSW\_10\_2\_3-PU25ns\_102X\_upgrade2018\_realistic\_v12-v1/MINIAODSIM"
+}}
+\def \samplesStat {{"9 k", "25 M", "50 k + 9 k"}}
 
-\begin{frame}{Input samples}
+
+\begin{frame}{Input samples analyzed}
 \begin{itemize}
-    \foreach \sample in \samples {
+    \foreach \sample[count=\iSamp from 0] in \samples {
         \item
-        \textbf{\sample}
-        \bigskip
+        \pgfmathparse{\samplesComment[\iSamp]}
+        \textbf{\sample}: \textbf{\pgfmathresult}
+        \begin{itemize}
+            \item
+            \pgfmathparse{\samplesLink[\iSamp]}
+            {\scriptsize \pgfmathresult}
+
+            \item
+            \pgfmathparse{\samplesStat[\iSamp]}
+            \pgfmathresult
+        \end{itemize}        
+        %\bigskip
     }
 \end{itemize}        
 \end{frame}
@@ -88,17 +144,26 @@
 
 \def \matchings {MatchedPrimaryMuon, MatchedMuonFromHeavyFlavour, MatchedMuonFromB, MatchedMuonFromBtoC, MatchedMuonFromC}
 
-\begin{frame}{Signal and background definition}
+\begin{frame}{Signal and background muon definition}
 Among muons passing a given analysis pre-selection cuts
 \begin{itemize}
-    \item several signal muon definitions studied:
+    \bigskip
+    \item several signal muons definitions studied:
     \begin{itemize}
     \foreach \matching in \matchings {
+        \ifthenelse{ \equal{\matching}{MatchedPrimaryMuon} \OR \equal{\matching}{MatchedMuonFromHeavyFlavour} }{
+        \medskip
         \item
         \texttt{\matching}
-        %\bigskip
+        }{
+        \begin{itemize}
+            \item
+            \texttt{\matching}
+        \end{itemize}        
+        }
     }
-    \end{itemize}        
+    \end{itemize}
+    \bigskip
     \item Background muon ≡ not signal muon
 \end{itemize}        
 \end{frame}
@@ -106,23 +171,32 @@ Among muons passing a given analysis pre-selection cuts
 
 \foreach \analysis[count=\iAn from 0] in \analyses {
     
-    \pgfmathparse{\titles[\iAn]}
-    
     \section{\analysis}
     
     \begin{frame}
     \textbf{\analysis} \\
+    \pgfmathparse{\titles[\iAn]}
     \pgfmathresult
+
+    \bigskip
+
+    \pgfmathparse{\bkgs[\iAn]}
+    Main background: \pgfmathresult
+
     \end{frame}
 
     \foreach \sample[count=\iSamp from 0] in \samples {
-        \pgfmathparse{\samplesLit[\iSamp]}
-        \IfStrEq{\pgfmathresult}{qcd_zmm}{}{
+        \pgfmathparse{\samplesString[\iSamp]}
+        %\IfStrEq{\pgfmathresult}{qcd_zmm}{}{ % not enough statistics
+        %\whiledo{\NOT \( \equal{\pgfmathresult}{qcd_zmm} \OR \equal{\pgfmathresult}{ttbar} \) }{ % compilation timeout
+        \ifthenelse{\NOT \( \equal{\pgfmathresult}{qcd_zmm} \OR \equal{\pgfmathresult}{ttbar} \)}{
             \subsection{\sample}
             
             \foreach \matching in \matchings {
                 %\whiledo{\equal{\pgfmathresult}{JPsiToMuMu}}{% \and %\equal{\matching}{MatchedMuonFromB}}{ % compilation timeout
-                \ifthenelse{\NOT \( \equal{\pgfmathresult}{JPsiToMuMu} \AND \(\equal{\matching}{MatchedPrimaryMuon} \OR \equal{\matching}{MatchedMuonFromHeavyFlavour} \OR \equal{\matching}{MatchedMuonFromC}\) \)}{
+                \ifthenelse{\NOT \( \equal{\pgfmathresult}{JPsiToMuMu} \AND
+                \( \equal{\matching}{MatchedPrimaryMuon} \OR \equal{\matching}{MatchedMuonFromHeavyFlavour} \OR \equal{\matching}{MatchedMuonFromC}\)
+                \)}{
                     \def \plot {\analysis /\pgfmathresult_\matching}
                 
                     \begin{frame}{\texttt{\matching}}
@@ -142,7 +216,7 @@ Among muons passing a given analysis pre-selection cuts
                     %\breakforeach
                 }{}
             } % \foreach \matching
-        } % \IfStrEq{\pgfmathresult}{qcd_zmm}{}{
+        }{} % \ifthenelse{\NOT \( \equal{\pgfmathresult}{qcd_zmm} \OR {ttbar} \)}
     } % \foreach \sample
 } % \foreach \analysis
 
@@ -174,7 +248,7 @@ Gadgets & 13
 
 \end{frame}
 
-\subsection{Mathematics}
+%\subsection{Mathematics}
 
 \begin{frame}{Readable Mathematics}
 
